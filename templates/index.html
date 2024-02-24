@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <form id="urlForm">
+            <label for="url">Enter URL:</label>
+            <input type="text" id="url" name="url" oninput="validateUrl()">
+            <button type="button" id="shortenBtn" onclick="shortenUrl()" disabled>Shorten URL</button>
+            <button type="button" onclick="clearInput()">Clear</button>
+        </form>
+
+        <div id="shortenedUrl"></div>
+    </div>
+
+    <script>
+        function validateUrl() {
+            const urlInput = document.getElementById('url');
+            const shortenBtn = document.getElementById('shortenBtn');
+
+            if (urlInput.value.trim() === '') {
+                shortenBtn.disabled = true;
+            } else {
+                shortenBtn.disabled = false;
+            }
+        }
+
+        function shortenUrl() {
+            const url = document.getElementById('url').value;
+            fetch('/shorten', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'url=' + encodeURIComponent(url)
+            })
+            .then(response => response.text())
+            .then(shortenedUrl => {
+                document.getElementById('shortenedUrl').innerHTML = 'Shortened URL: <a href="' + shortenedUrl + '">' + shortenedUrl + '</a>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function clearInput() {
+            document.getElementById('url').value = '';
+            document.getElementById('shortenedUrl').innerHTML = '';
+            document.getElementById('shortenBtn').disabled = true;
+        }
+    </script>
+</body>
+</html>
